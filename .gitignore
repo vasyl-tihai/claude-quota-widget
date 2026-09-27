@@ -6,3 +6,4 @@ tasks_settings.json
 *.bak
 *.tmp
 token.txt
+model_usage.json

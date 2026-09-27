@@ -78,7 +78,8 @@ def something_below(hwnd):
 # --- теми --------------------------------------------------------------------
 # green/amber/red — кольори рівня (норма / увага / критично).
 # day/session/week/model — власний колір кожного ліміту для режиму
-# «свій колір на ліміт»; accent — позначки й кнопки віджета задач.
+# «свій колір на ліміт»; accent — позначки й кнопки віджета задач;
+# opus/sonnet/haiku/fable/other — постійний колір кожної сім'ї моделей.
 
 THEMES = {
     "light": {
@@ -86,36 +87,42 @@ THEMES = {
         "green": "#1f883d", "amber": "#9a6700", "red": "#cf222e", "tick": "#8c95a1",
         "day": "#8250df", "session": "#0969da", "week": "#1a7f37", "model": "#bf3989",
         "accent": "#0969da",
+        "opus": "#bc4c00", "sonnet": "#0969da", "haiku": "#1a7f37", "fable": "#8250df", "other": "#6b7280",
     },
     "dark": {
         "bg": "#14161a", "fg": "#e8eaed", "muted": "#868d99", "track": "#272b33",
         "green": "#3fb950", "amber": "#d29922", "red": "#f85149", "tick": "#5b6473",
         "day": "#a371f7", "session": "#58a6ff", "week": "#3fb950", "model": "#f778ba",
         "accent": "#58a6ff",
+        "opus": "#ff9e64", "sonnet": "#58a6ff", "haiku": "#3fb950", "fable": "#d2a8ff", "other": "#8b949e",
     },
     "ocean": {
         "bg": "#0f1d2e", "fg": "#e3eefb", "muted": "#8aa3bf", "track": "#1f334a",
         "green": "#2ec4a6", "amber": "#f2b544", "red": "#ff6b6b", "tick": "#56708d",
         "day": "#7cc4ff", "session": "#4f9dff", "week": "#2ec4a6", "model": "#b69cff",
         "accent": "#4f9dff",
+        "opus": "#ffb86b", "sonnet": "#4f9dff", "haiku": "#2ec4a6", "fable": "#c9a7ff", "other": "#8aa3bf",
     },
     "violet": {
         "bg": "#1c1528", "fg": "#efe7fb", "muted": "#a293bb", "track": "#31264a",
         "green": "#6fdc8c", "amber": "#f5c451", "red": "#ff6f91", "tick": "#6d5d8a",
         "day": "#c58bff", "session": "#8f7bff", "week": "#5ccfe6", "model": "#ff8fd8",
         "accent": "#c58bff",
+        "opus": "#ffab70", "sonnet": "#8f7bff", "haiku": "#5ccfe6", "fable": "#ff8fd8", "other": "#a293bb",
     },
     "forest": {
         "bg": "#142019", "fg": "#e5f2e9", "muted": "#8fa999", "track": "#24362b",
         "green": "#6bcf7f", "amber": "#e6b450", "red": "#f07167", "tick": "#58705f",
         "day": "#a3d977", "session": "#56c2a6", "week": "#6bcf7f", "model": "#e9c46a",
         "accent": "#6bcf7f",
+        "opus": "#f4a261", "sonnet": "#56c2a6", "haiku": "#a3d977", "fable": "#e9c46a", "other": "#8fa999",
     },
     "sand": {
         "bg": "#f7f1e6", "fg": "#2d2418", "muted": "#7d6e5a", "track": "#e6dcc9",
         "green": "#3f7f3a", "amber": "#b0700c", "red": "#c2362b", "tick": "#a8977d",
         "day": "#c0552f", "session": "#2f6f9f", "week": "#3f7f3a", "model": "#8a4f9e",
         "accent": "#c0552f",
+        "opus": "#c0552f", "sonnet": "#2f6f9f", "haiku": "#3f7f3a", "fable": "#8a4f9e", "other": "#7d6e5a",
     },
 }
 THEME_ORDER = ["light", "dark", "ocean", "violet", "forest", "sand"]
@@ -133,6 +140,7 @@ LANG_NAMES = {"uk": "Українська", "en": "English", "pl": "Polski",
 
 STRINGS = {
     "uk": {
+        "models_week": "Моделі за тиждень", "now": "зараз", "models_loading": "Моделі: рахую…",
         "m_token": "Свій токен…", "token_prompt": "OAuth-токен підписки Claude (claude setup-token).\nПорожньо — брати вхід із claude.", "st_apikey": "API-ключ без квоти",
         "quota_title": "Квота Claude", "today": "Сьогодні", "session": "5 годин",
         "week": "Тиждень", "model_limit": "Модель",
@@ -149,7 +157,7 @@ STRINGS = {
         "m_bars": "Колір смуг", "m_bars_level": "За рівнем витрати",
         "m_bars_limit": "Свій колір на кожен ліміт",
         "m_numbers": "Фарбувати відсотки", "m_thresholds": "Пороги кольору",
-        "m_show_model": "Показувати модель",
+        "m_models": "Моделі внизу", "m_models_current": "Лише поточна", "m_models_week": "Усі за тиждень (кольори й частки)", "m_models_off": "Не показувати",
         "th_light": "Світла", "th_dark": "Темна", "th_ocean": "Океан",
         "th_violet": "Фіалка", "th_forest": "Ліс", "th_sand": "Пісок",
         "tasks_title": "Задачі на сьогодні", "add_today": "+ нова задача",
@@ -160,6 +168,7 @@ STRINGS = {
         "weekdays": ["пн", "вт", "ср", "чт", "пт", "сб", "нд"],
     },
     "en": {
+        "models_week": "Models this week", "now": "now", "models_loading": "Models: counting…",
         "m_token": "Own token…", "token_prompt": "Claude subscription OAuth token (claude setup-token).\nLeave empty to use the claude login.", "st_apikey": "API key has no quota",
         "quota_title": "Claude Quota", "today": "Today", "session": "5 hours",
         "week": "Week", "model_limit": "Model",
@@ -176,7 +185,7 @@ STRINGS = {
         "m_bars": "Bar colors", "m_bars_level": "By usage level",
         "m_bars_limit": "Own color per limit",
         "m_numbers": "Color the percentages", "m_thresholds": "Color thresholds",
-        "m_show_model": "Show model",
+        "m_models": "Models at the bottom", "m_models_current": "Current only", "m_models_week": "All this week (colors and shares)", "m_models_off": "Hide",
         "th_light": "Light", "th_dark": "Dark", "th_ocean": "Ocean",
         "th_violet": "Violet", "th_forest": "Forest", "th_sand": "Sand",
         "tasks_title": "Today's tasks", "add_today": "+ new task",
@@ -187,6 +196,7 @@ STRINGS = {
         "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     },
     "pl": {
+        "models_week": "Modele w tym tygodniu", "now": "teraz", "models_loading": "Modele: liczę…",
         "m_token": "Własny token…", "token_prompt": "Token OAuth subskrypcji Claude (claude setup-token).\nPuste — użyj logowania claude.", "st_apikey": "klucz API bez limitów",
         "quota_title": "Limity Claude", "today": "Dziś", "session": "5 godzin",
         "week": "Tydzień", "model_limit": "Model",
@@ -203,7 +213,7 @@ STRINGS = {
         "m_bars": "Kolor pasków", "m_bars_level": "Według poziomu zużycia",
         "m_bars_limit": "Własny kolor dla limitu",
         "m_numbers": "Koloruj procenty", "m_thresholds": "Progi koloru",
-        "m_show_model": "Pokazuj model",
+        "m_models": "Modele na dole", "m_models_current": "Tylko bieżący", "m_models_week": "Wszystkie w tygodniu (kolory i udziały)", "m_models_off": "Ukryj",
         "th_light": "Jasny", "th_dark": "Ciemny", "th_ocean": "Ocean",
         "th_violet": "Fiolet", "th_forest": "Las", "th_sand": "Piasek",
         "tasks_title": "Zadania na dziś", "add_today": "+ nowe zadanie",
@@ -215,6 +225,7 @@ STRINGS = {
         "weekdays": ["pn", "wt", "śr", "czw", "pt", "sob", "nd"],
     },
     "de": {
+        "models_week": "Modelle diese Woche", "now": "jetzt", "models_loading": "Modelle: zähle…",
         "m_token": "Eigenes Token…", "token_prompt": "OAuth-Token des Claude-Abos (claude setup-token).\nLeer lassen für die claude-Anmeldung.", "st_apikey": "API-Key: kein Abo",
         "quota_title": "Claude-Kontingent", "today": "Heute", "session": "5 Stunden",
         "week": "Woche", "model_limit": "Modell",
@@ -231,7 +242,7 @@ STRINGS = {
         "m_bars": "Balkenfarbe", "m_bars_level": "Nach Verbrauch",
         "m_bars_limit": "Eigene Farbe je Limit",
         "m_numbers": "Prozente einfärben", "m_thresholds": "Farbschwellen",
-        "m_show_model": "Modell anzeigen",
+        "m_models": "Modelle unten", "m_models_current": "Nur aktuelles", "m_models_week": "Alle dieser Woche (Farben und Anteile)", "m_models_off": "Ausblenden",
         "th_light": "Hell", "th_dark": "Dunkel", "th_ocean": "Ozean",
         "th_violet": "Violett", "th_forest": "Wald", "th_sand": "Sand",
         "tasks_title": "Aufgaben für heute", "add_today": "+ neue Aufgabe",
@@ -242,6 +253,7 @@ STRINGS = {
         "weekdays": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
     },
     "es": {
+        "models_week": "Modelos esta semana", "now": "ahora", "models_loading": "Modelos: contando…",
         "m_token": "Token propio…", "token_prompt": "Token OAuth de la suscripción (claude setup-token).\nVacío: usar el inicio de sesión de claude.", "st_apikey": "clave API sin cuota",
         "quota_title": "Cuota de Claude", "today": "Hoy", "session": "5 horas",
         "week": "Semana", "model_limit": "Modelo",
@@ -258,7 +270,7 @@ STRINGS = {
         "m_bars": "Color de barras", "m_bars_level": "Según el uso",
         "m_bars_limit": "Color propio por límite",
         "m_numbers": "Colorear porcentajes", "m_thresholds": "Umbrales de color",
-        "m_show_model": "Mostrar modelo",
+        "m_models": "Modelos abajo", "m_models_current": "Solo el actual", "m_models_week": "Todos esta semana (colores y cuotas)", "m_models_off": "Ocultar",
         "th_light": "Claro", "th_dark": "Oscuro", "th_ocean": "Océano",
         "th_violet": "Violeta", "th_forest": "Bosque", "th_sand": "Arena",
         "tasks_title": "Tareas de hoy", "add_today": "+ nueva tarea",
@@ -657,6 +669,9 @@ class DesktopWindow:
         x = max(0, min(x, self.root.winfo_screenwidth() - 80))
         y = max(0, min(y, self.root.winfo_screenheight() - 60))
         self.root.geometry("%dx%d+%d+%d" % (WIDTH, height, x, y))
+        # застосувати одразу: інакше до першого показу вікна Tk встигає
+        # перерахувати геометрію сам, і позиція губиться (вікно в куті 0,0)
+        self.root.update_idletasks()
 
     def _drag_start(self, event):
         self._drag = (event.x_root, event.y_root,

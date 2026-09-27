@@ -21,7 +21,8 @@ from datetime import datetime, timedelta, timezone
 
 import tkinter as tk
 
-from common import (HERE, PAD, WIDTH, T, DesktopWindow, set_dpi_awareness, tr)
+from common import (HERE, PAD, WIDTH, T, DesktopWindow, load_json, save_json,
+                    set_dpi_awareness, tr)
 
 # --- константи ---------------------------------------------------------------
 
@@ -495,6 +496,209 @@ class Row:
             c.create_line(x, -1, x, h + 1, fill=T["tick"], width=1)
 
 
+# --- моделі: хто скільки з'їв за тиждень --------------------------------------
+
+USAGE_CACHE = os.path.join(HERE, "model_usage.json")
+USAGE_POLL_MS = 60000
+USAGE_DAYS = 8            # тримаємо трохи більше тижня квоти
+FAMILIES = ("opus", "sonnet", "haiku", "fable")
+# Вага токенів за типом, приблизно як у ціні: вихід ~5× дорожчий за вхід,
+# запис у кеш ~1.25×, читання кешу ~0.1×. Без ваг частку «з'їдало» б читання
+# кешу — його в довгих сесіях у сотні разів більше за решту.
+TOKEN_WEIGHTS = {"input_tokens": 1.0, "output_tokens": 5.0,
+                 "cache_creation_input_tokens": 1.25, "cache_read_input_tokens": 0.1}
+
+
+def model_family(model_id):
+    for part in model_id.split("[")[0].split("-")[1:]:
+        if not part.isdigit():
+            return part if part in FAMILIES else "other"
+    return "other"
+
+
+def blend(color, other, amount):
+    """Змішує #rrggbb з іншим кольором: amount=0 — сам color, 1 — other."""
+    a = [int(color[i:i + 2], 16) for i in (1, 3, 5)]
+    b = [int(other[i:i + 2], 16) for i in (1, 3, 5)]
+    return "#%02x%02x%02x" % tuple(round(x + (y - x) * amount) for x, y in zip(a, b))
+
+
+def parse_ts(value):
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
+    except (AttributeError, ValueError):
+        return None
+
+
+class ModelUsage:
+    """Частки моделей за тиждень з журналів ~/.claude/projects (разом із субагентами).
+
+    Журналів за тиждень — гігабайти, тож читаємо лише нове: для кожного файлу
+    пам'ятаємо, на якому байті зупинились, а суми тримаємо погодинно.
+    Усе це лежить у model_usage.json, щоб перезапуск не перечитував усе.
+    """
+
+    def __init__(self):
+        cache = load_json(USAGE_CACHE)
+        self.files = cache.get("files") or {}      # шлях -> {"offset": байт}
+        self.buckets = cache.get("buckets") or {}  # модель -> {година: вага}
+
+    def scan(self):
+        cutoff = time.time() - USAGE_DAYS * 86400
+        alive = set()
+        for dirpath, _dirs, names in os.walk(PROJECTS_DIR):
+            for name in names:
+                if not name.endswith(".jsonl"):
+                    continue
+                path = os.path.join(dirpath, name)
+                try:
+                    st = os.stat(path)
+                except OSError:
+                    continue
+                if st.st_mtime < cutoff:
+                    continue
+                alive.add(path)
+                info = self.files.get(path) or {"offset": 0}
+                if st.st_size < info["offset"]:
+                    info = {"offset": 0}  # файл переписали з нуля
+                if st.st_size > info["offset"]:
+                    try:
+                        info["offset"] = self._read(path, info["offset"])
+                    except OSError:
+                        pass
+                self.files[path] = info
+
+        self.files = {p: i for p, i in self.files.items() if p in alive}
+        min_hour = int(cutoff // 3600)
+        for model in list(self.buckets):
+            hours = {h: w for h, w in self.buckets[model].items() if int(h) >= min_hour}
+            if hours:
+                self.buckets[model] = hours
+            else:
+                del self.buckets[model]
+        save_json(USAGE_CACHE, {"files": self.files, "buckets": self.buckets})
+
+    def _read(self, path, offset):
+        seen = set()
+        with open(path, "rb") as f:
+            f.seek(offset)
+            while True:
+                line = f.readline()
+                if not line.endswith(b"\n"):
+                    break  # недописаний рядок — дочитаємо наступного разу
+                offset += len(line)
+                # дешевий відсів до json.loads: більшість байтів — результати
+                # інструментів у рядках "user", і розбирати їх нема чого
+                if b'"usage"' not in line or b'"assistant"' not in line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except ValueError:
+                    continue
+                msg = obj.get("message") or {}
+                model = msg.get("model") or ""
+                usage = msg.get("usage")
+                ts = parse_ts(obj.get("timestamp"))
+                if not model.startswith("claude-") or not isinstance(usage, dict) or ts is None:
+                    continue
+                # одна відповідь пишеться кількома рядками (по блоку контенту),
+                # і в кожному той самий usage — рахувати треба один раз
+                key = msg.get("id") or obj.get("requestId")
+                if key in seen:
+                    continue
+                seen.add(key)
+                weight = sum(float(usage.get(k) or 0) * w for k, w in TOKEN_WEIGHTS.items())
+                hour = str(int(ts // 3600))
+                bucket = self.buckets.setdefault(model, {})
+                bucket[hour] = bucket.get(hour, 0.0) + weight
+        return offset
+
+    def shares(self, since_ts):
+        """[(назва, сім'я, відсоток)] від більшої частки до меншої."""
+        first_hour = int(since_ts // 3600)
+        totals = {}
+        for model, hours in self.buckets.items():
+            weight = sum(w for h, w in hours.items() if int(h) >= first_hour)
+            if weight > 0:
+                label = model_label(model)
+                prev = totals.get(label, (0.0, model))[0]
+                totals[label] = (prev + weight, model)
+        grand = sum(w for w, _m in totals.values())
+        items = [(label, model_family(model), w / grand * 100.0)
+                 for label, (w, model) in totals.items()]
+        return sorted(items, key=lambda item: -item[2])
+
+
+class ModelsBlock:
+    """Внизу квоти: кожна модель — свій колір, смуга на її частку за тиждень."""
+
+    def __init__(self, parent):
+        self.frame = tk.Frame(parent, bg=T["bg"])
+        self.title = tk.Label(self.frame, text=tr("models_loading"), bg=T["bg"],
+                              fg=T["muted"], font=("Segoe UI", 8), anchor="w")
+        self.title.pack(fill="x", pady=(0, 3))
+        self.box = tk.Frame(self.frame, bg=T["bg"])
+        self.box.pack(fill="x")
+        self.items = None    # None — ще не пораховано
+        self.current = None  # id моделі останньої відповіді
+
+    def show(self, mode="current"):
+        for child in self.box.winfo_children():
+            child.destroy()
+        current = model_label(self.current) if self.current else None
+        if mode != "week":
+            # простий вигляд — один рядок, як було від початку
+            self.title.config(text=tr("model_now", name=current) if current
+                              else tr("model_none"))
+            return
+        items = list(self.items or [])
+        if current and current not in [label for label, _f, _s in items]:
+            items.append((current, model_family(self.current), 0.0))
+
+        if self.items is None:
+            self.title.config(text=tr("models_loading"))
+        elif not items:
+            self.title.config(text=tr("model_none"))
+        else:
+            self.title.config(text=tr("models_week"))
+
+        used = {}
+        for label, family, share in items:
+            # дві версії однієї сім'ї (Opus 5.5 і Opus 5) не мають злитись:
+            # кожна наступна — блідіший відтінок кольору сім'ї
+            nth = used.get(family, 0)
+            used[family] = nth + 1
+            color = blend(T.get(family, T["other"]), T["bg"], min(0.6, 0.3 * nth))
+            row = tk.Frame(self.box, bg=T["bg"])
+            row.pack(fill="x", pady=(0, 5))
+            head = tk.Frame(row, bg=T["bg"])
+            head.pack(fill="x")
+            tk.Label(head, text="●", bg=T["bg"], fg=color,
+                     font=("Segoe UI", 8)).pack(side="left")
+            tk.Label(head, text=label, bg=T["bg"], fg=T["fg"],
+                     font=("Segoe UI Semibold" if label == current else "Segoe UI", 9)
+                     ).pack(side="left")
+            if label == current:
+                tk.Label(head, text="· " + tr("now"), bg=T["bg"], fg=T["muted"],
+                         font=("Segoe UI", 8)).pack(side="left", padx=(3, 0))
+            if self.items is not None:
+                tk.Label(head, text="%d%%" % round(share), bg=T["bg"], fg=color,
+                         font=("Segoe UI Semibold", 9)).pack(side="right")
+            bar = tk.Canvas(row, height=4, bg=T["bg"], highlightthickness=0, bd=0)
+            bar.pack(fill="x", pady=(2, 0))
+            width = WIDTH - 2 * PAD
+            bar.create_rectangle(0, 0, width, 4, fill=T["track"], outline="")
+            if share > 0:
+                bar.create_rectangle(0, 0, max(2, share / 100.0 * width), 4,
+                                     fill=color, outline="")
+
+    def retheme(self, mode):
+        for widget in (self.frame, self.box):
+            widget.config(bg=T["bg"])
+        self.title.config(bg=T["bg"], fg=T["muted"])
+        self.show(mode)
+
+
 class QuotaWidget(DesktopWindow):
     APP_NAME = "ClaudeQuotaWidget"
     SCRIPT = "quota_widget.py"
@@ -508,11 +712,13 @@ class QuotaWidget(DesktopWindow):
         self.updated_at = None
         self._timer = None
         self._model_timer = None
-        self.model_id = None
+        self.usage = ModelUsage()
+        self._scanning = False
         super().__init__()
         self.status.config(text="…")
         self.root.after(200, self.refresh)
         self.root.after(300, self.refresh_model)
+        self.root.after(400, self.refresh_usage)
 
     # -- побудова -------------------------------------------------------------
 
@@ -525,22 +731,27 @@ class QuotaWidget(DesktopWindow):
         self.session_row = Row(self.root, tr("session"), s, "session")
         self.week_row = Row(self.root, tr("week"), s, "week")
         # окремий контейнер: рядки моделей з'являються вже після побудови,
-        # і без нього стали б нижче за підпис моделі
+        # і без нього стали б нижче за блок моделей
         self.scoped_box = tk.Frame(self.root, bg=T["bg"])
         self.scoped_box.pack(fill="x")
         self.scoped_rows = []
 
-        self.model_label = tk.Label(
-            self.root, text="", bg=T["bg"], fg=T["muted"],
-            font=("Segoe UI", 8), anchor="w",
-        )
-        self._place_model_label()
+        self.models = ModelsBlock(self.root)
+        self._place_models()
 
-    def _place_model_label(self):
-        if self.settings.get("show_model", True):
-            self.model_label.pack(fill="x", padx=PAD, pady=(0, 8))
+    def models_mode(self):
+        """current — один рядок «Модель: …» (за замовчуванням), week — усі
+        моделі тижня з кольорами й частками, off — нічого."""
+        mode = self.settings.get("models")
+        if mode in ("current", "week", "off"):
+            return mode
+        return "off" if self.settings.get("show_model") is False else "current"
+
+    def _place_models(self):
+        if self.models_mode() != "off":
+            self.models.frame.pack(fill="x", padx=PAD, pady=(0, 6))
         else:
-            self.model_label.pack_forget()
+            self.models.frame.pack_forget()
 
     def _rows(self):
         return [self.day_row, self.session_row, self.week_row] + self.scoped_rows
@@ -575,11 +786,15 @@ class QuotaWidget(DesktopWindow):
             label=tr("m_numbers"), variable=self.numbers_var,
             command=lambda: self._set_style("numbers", self.numbers_var.get()),
         )
-        self.show_model_var = tk.BooleanVar(value=self.settings.get("show_model", True))
-        menu.add_checkbutton(
-            label=tr("m_show_model"), variable=self.show_model_var,
-            command=self._toggle_model,
-        )
+        models = tk.Menu(menu, tearoff=0)
+        self.models_var = tk.StringVar(value=self.models_mode())
+        for value, key in (("current", "m_models_current"), ("week", "m_models_week"),
+                           ("off", "m_models_off")):
+            models.add_radiobutton(
+                label=tr(key), variable=self.models_var, value=value,
+                command=lambda v=value: self.set_models_mode(v),
+            )
+        menu.add_cascade(label=tr("m_models"), menu=models)
         menu.add_separator()
 
     def ask_token(self):
@@ -603,44 +818,80 @@ class QuotaWidget(DesktopWindow):
         for row in self._rows():
             row._redraw()
 
-    def _toggle_model(self):
-        self.settings["show_model"] = self.show_model_var.get()
+    def set_models_mode(self, mode):
+        self.settings["models"] = mode
+        self.settings.pop("show_model", None)
         self.save_settings()
-        self._place_model_label()
-        self.fit_height()
+        self._place_models()
+        self._show_models()
+        if mode == "week":
+            self.refresh_usage(reschedule=False)  # порахувати одразу, а не за хвилину
 
     def retheme(self):
         self.separator.config(bg=T["track"])
         self.scoped_box.config(bg=T["bg"])
-        self.model_label.config(bg=T["bg"], fg=T["muted"])
         self._show_status()
         for row in self._rows():
             row.retheme()
+        self.models.retheme(self.models_mode())
+        self.bind_drag(self.models.box)
 
     def relabel(self):
         self.day_row.title.config(text=tr("today"))
         self.session_row.title.config(text=tr("session"))
         self.week_row.title.config(text=tr("week"))
         self._show_status()
-        self._show_model()
+        self._show_models()
         self.render()
 
     # -- модель ---------------------------------------------------------------
 
     def refresh_model(self):
+        """Поточна модель — часто: це лише хвіст одного файлу."""
         if self.stop:
             return
         model = current_model()
-        if model != self.model_id or not self.model_label.cget("text"):
-            self.model_id = model
-            self._show_model()
+        if model != self.models.current:
+            self.models.current = model
+            self._show_models()
         self._model_timer = self.root.after(MODEL_POLL_MS, self.refresh_model)
 
-    def _show_model(self):
-        if self.model_id:
-            self.model_label.config(text=tr("model_now", name=model_label(self.model_id)))
-        else:
-            self.model_label.config(text=tr("model_none"))
+    def refresh_usage(self, reschedule=True):
+        """Частки моделей — у фоні: перший прохід читає журнали за тиждень.
+
+        Лише в режимі week: у решті режимів журнали за тиждень не читаються.
+        """
+        if self.stop:
+            return
+        if reschedule:
+            self.root.after(USAGE_POLL_MS, self.refresh_usage)
+        if self.models_mode() == "week" and not self._scanning:
+            self._scanning = True
+            week_reset = (self.data or {}).get("week_reset")
+            if week_reset:
+                since = (quantize(week_reset) - timedelta(days=7)).timestamp()
+            else:
+                since = time.time() - 7 * 86400
+            threading.Thread(target=self._usage_worker, args=(since,), daemon=True).start()
+
+    def _usage_worker(self, since):
+        try:
+            self.usage.scan()
+            items = self.usage.shares(since)
+        except Exception:
+            items = None  # журнали недоступні — лишаємо, що було
+        self.root.after(0, self._apply_usage, items)
+
+    def _apply_usage(self, items):
+        self._scanning = False
+        if items is not None:
+            self.models.items = items
+            self._show_models()
+
+    def _show_models(self):
+        self.models.show(self.models_mode())
+        self.bind_drag(self.models.box)
+        self.fit_height()
 
     # -- дані -----------------------------------------------------------------
 
@@ -757,6 +1008,9 @@ class QuotaWidget(DesktopWindow):
         for row, entry in zip(self.scoped_rows, scoped):
             row.frame.pack(fill="x", padx=PAD, pady=(0, 10))
             row.title.config(text=entry["title"] or tr("model_limit"))
+            family = (entry["title"] or "").split(" ")[0].lower()
+            # той самий колір моделі, що й у блоці моделей унизу
+            row.color_key = family if family in FAMILIES else "model"
             row.value.config(text="%d%%" % round(entry["percent"]))
             row.draw(entry["percent"])
             row.note.config(text=fmt_reset(entry["resets_at"], with_weekday=True))

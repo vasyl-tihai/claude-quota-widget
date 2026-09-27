@@ -8,6 +8,8 @@ Two small desktop widgets written in plain Python (standard library only, no `pi
 - **Daily Tasks** (`tasks_widget.py`) is a to‑do list for today. Ticked tasks disappear from the list
   but stay under "Done". A separate "Later" list holds tasks you haven't scheduled yet.
 
+![Claude Quota and Daily Tasks widgets in dark, light and sand themes](docs/screenshot.png)
+
 Both widgets sit on the desktop under your windows by default (or stay always on top),
 have rounded corners, six color themes and five languages:
 English, Українська, Polski, Deutsch, Español.
@@ -64,7 +66,7 @@ Drag a widget with the left mouse button. Settings and tasks are saved next to t
 | 5 hours | the rolling 5‑hour session limit |
 | Week | the weekly limit. The thin tick marks where you'd be if you used the week evenly |
 | model rows | per‑model weekly limits, when your plan has them |
-| Model: … | the model of the most recent Claude Code reply, read from the local session logs |
+| Model: … | the model of the most recent Claude Code reply, read from the local session logs (see below) |
 
 Colors (in the ⚙ menu):
 
@@ -74,6 +76,21 @@ Colors (in the ⚙ menu):
 - **Color the percentages**: the numbers follow the same green, amber and red levels.
 - **Color thresholds**: 60/85%, 70/90% (default) or 80/95%.
 - **Theme**: Light, Dark, Ocean, Violet, Forest or Sand.
+
+**Models at the bottom** (⚙ menu). The default is the simple line:
+
+- **Current only**: one line, `Model: Opus 5.5`. This is the default.
+- **All this week (colors and shares)**: every model you used during the current quota week. Each
+  model has its own color: Opus, Sonnet, Haiku and Fable each have one, and a second version of the
+  same family gets a paler shade. Each bar is filled by that model's share of the week, and the model
+  in use right now is marked **now**. Shares come from the local Claude Code logs, subagents included.
+  Tokens are weighted roughly by price (output ×5, cache write ×1.25, cache read ×0.1). These are
+  relative shares between models, not a limit. The first count reads the week's logs once, which
+  takes about 10 s per 2 GB, and after that only new lines are read.
+- **Hide**.
+
+In the "Own color per limit" mode, a per‑model limit row such as "Opus 74%" uses the same color as
+that model in the list.
 
 ### How it works, and what to know
 
@@ -104,7 +121,8 @@ Colors (in the ⚙ menu):
 | `quota_widget.py` | the quota widget |
 | `tasks_widget.py` | the tasks widget |
 | `start.bat` | starts both widgets without a console window |
-| `settings.json`, `state.json`, `tasks.json`, `tasks_settings.json`, `token.txt` | created at runtime, not in git |
+| `settings.json`, `state.json`, `tasks.json`, `tasks_settings.json`, `token.txt`, `model_usage.json` | created at runtime, not in git |
+| `docs/screenshot.png` | the picture above (demo data) |
 
 ## Adding a language
 
