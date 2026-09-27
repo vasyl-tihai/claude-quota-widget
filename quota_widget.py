@@ -21,8 +21,8 @@ from datetime import datetime, timedelta, timezone
 
 import tkinter as tk
 
-from common import (HERE, PAD, WIDTH, T, DesktopWindow, load_json, save_json,
-                    set_dpi_awareness, tr)
+from common import (HERE, PAD, WIDTH, T, DesktopWindow, already_running, load_json,
+                    save_json, set_dpi_awareness, tr)
 
 # --- константи ---------------------------------------------------------------
 
@@ -806,6 +806,10 @@ class QuotaWidget(DesktopWindow):
             self.row_vars[key] = var
             rows.add_checkbutton(label=label, variable=var,
                                  command=lambda k=key, v=var: self.toggle_row(k, v))
+        rows.add_separator()
+        self.model_row_var = tk.BooleanVar(value=self.models_mode() != "off")
+        rows.add_checkbutton(label=tr("m_model_row"), variable=self.model_row_var,
+                             command=self._toggle_model_row)
         menu.add_cascade(label=tr("m_rows"), menu=rows)
         menu.add_separator()
 
@@ -830,7 +834,20 @@ class QuotaWidget(DesktopWindow):
         for row in self._rows():
             row._redraw()
 
+    def _toggle_model_row(self):
+        """Прибрати/повернути напис моделі; повертається той режим, що був."""
+        if self.model_row_var.get():
+            mode = self.settings.get("models_last", "current")
+        else:
+            if self.models_mode() != "off":
+                self.settings["models_last"] = self.models_mode()
+            mode = "off"
+        self.models_var.set(mode)
+        self.set_models_mode(mode)
+
     def set_models_mode(self, mode):
+        if hasattr(self, "model_row_var"):
+            self.model_row_var.set(mode != "off")
         self.settings["models"] = mode
         self.settings.pop("show_model", None)
         self.save_settings()
@@ -1083,6 +1100,8 @@ class QuotaWidget(DesktopWindow):
 
 
 def main():
+    if already_running(QuotaWidget.APP_NAME):
+        return
     set_dpi_awareness()
     QuotaWidget().run()
 

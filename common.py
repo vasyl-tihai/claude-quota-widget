@@ -8,6 +8,7 @@
 import ctypes
 import json
 import os
+import subprocess
 import sys
 import winreg
 from ctypes import wintypes
@@ -142,6 +143,7 @@ LANG_NAMES = {"uk": "Українська", "en": "English", "pl": "Polski", "de
 
 STRINGS = {
     "uk": {
+        "m_widgets": "Віджети", "m_apply_all": "Ця тема й мова — для всіх", "m_model_row": "Модель унизу",
         "m_rows": "Показники",
         "models_week": "Моделі за тиждень", "now": "зараз", "models_loading": "Моделі: рахую…",
         "m_token": "Свій токен…", "token_prompt": "OAuth-токен підписки Claude (claude setup-token).\nПорожньо — брати вхід із claude.", "st_apikey": "API-ключ без квоти",
@@ -171,6 +173,7 @@ STRINGS = {
         "weekdays": ["пн", "вт", "ср", "чт", "пт", "сб", "нд"],
     },
     "en": {
+        "m_widgets": "Widgets", "m_apply_all": "Use this theme and language for all", "m_model_row": "Model at the bottom",
         "m_rows": "Rows shown",
         "models_week": "Models this week", "now": "now", "models_loading": "Models: counting…",
         "m_token": "Own token…", "token_prompt": "Claude subscription OAuth token (claude setup-token).\nLeave empty to use the claude login.", "st_apikey": "API key has no quota",
@@ -200,6 +203,7 @@ STRINGS = {
         "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     },
     "pl": {
+        "m_widgets": "Widżety", "m_apply_all": "Ten motyw i język dla wszystkich", "m_model_row": "Model na dole",
         "m_rows": "Wskaźniki",
         "models_week": "Modele w tym tygodniu", "now": "teraz", "models_loading": "Modele: liczę…",
         "m_token": "Własny token…", "token_prompt": "Token OAuth subskrypcji Claude (claude setup-token).\nPuste — użyj logowania claude.", "st_apikey": "klucz API bez limitów",
@@ -230,6 +234,7 @@ STRINGS = {
         "weekdays": ["pn", "wt", "śr", "czw", "pt", "sob", "nd"],
     },
     "de": {
+        "m_widgets": "Widgets", "m_apply_all": "Dieses Design und diese Sprache für alle", "m_model_row": "Modell unten",
         "m_rows": "Anzeigen",
         "models_week": "Modelle diese Woche", "now": "jetzt", "models_loading": "Modelle: zähle…",
         "m_token": "Eigenes Token…", "token_prompt": "OAuth-Token des Claude-Abos (claude setup-token).\nLeer lassen für die claude-Anmeldung.", "st_apikey": "API-Key: kein Abo",
@@ -259,6 +264,7 @@ STRINGS = {
         "weekdays": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
     },
     "es": {
+        "m_widgets": "Widgets", "m_apply_all": "Este tema e idioma para todos", "m_model_row": "Modelo abajo",
         "m_rows": "Indicadores",
         "models_week": "Modelos esta semana", "now": "ahora", "models_loading": "Modelos: contando…",
         "m_token": "Token propio…", "token_prompt": "Token OAuth de la suscripción (claude setup-token).\nVacío: usar el inicio de sesión de claude.", "st_apikey": "clave API sin cuota",
@@ -288,6 +294,7 @@ STRINGS = {
         "weekdays": ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"],
     },
     "fr": {
+        "m_widgets": "Widgets", "m_apply_all": "Ce thème et cette langue pour tous", "m_model_row": "Modèle en bas",
         "m_rows": "Lignes affichées",
         "models_week": "Modèles cette semaine",
         "now": "maintenant",
@@ -351,6 +358,7 @@ STRINGS = {
         "weekdays": ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"],
     },
     "it": {
+        "m_widgets": "Widget", "m_apply_all": "Questo tema e lingua per tutti", "m_model_row": "Modello in basso",
         "m_rows": "Righe mostrate",
         "models_week": "Modelli questa settimana",
         "now": "ora",
@@ -414,6 +422,7 @@ STRINGS = {
         "weekdays": ["lun", "mar", "mer", "gio", "ven", "sab", "dom"],
     },
     "pt": {
+        "m_widgets": "Widgets", "m_apply_all": "Este tema e idioma para todos", "m_model_row": "Modelo embaixo",
         "m_rows": "Linhas exibidas",
         "models_week": "Modelos esta semana",
         "now": "agora",
@@ -477,6 +486,7 @@ STRINGS = {
         "weekdays": ["seg", "ter", "qua", "qui", "sex", "sáb", "dom"],
     },
     "nl": {
+        "m_widgets": "Widgets", "m_apply_all": "Dit thema en deze taal voor alle", "m_model_row": "Model onderaan",
         "m_rows": "Weergegeven rijen",
         "models_week": "Modellen deze week",
         "now": "nu",
@@ -540,6 +550,7 @@ STRINGS = {
         "weekdays": ["ma", "di", "wo", "do", "vr", "za", "zo"],
     },
     "cs": {
+        "m_widgets": "Widgety", "m_apply_all": "Tento motiv a jazyk pro všechny", "m_model_row": "Model dole",
         "m_rows": "Zobrazené řádky",
         "models_week": "Modely tento týden",
         "now": "teď",
@@ -603,6 +614,7 @@ STRINGS = {
         "weekdays": ["po", "út", "st", "čt", "pá", "so", "ne"],
     },
     "tr": {
+        "m_widgets": "Widget'lar", "m_apply_all": "Bu tema ve dili tümüne uygula", "m_model_row": "Alttaki model",
         "m_rows": "Gösterilen satırlar",
         "models_week": "Bu haftaki modeller",
         "now": "şimdi",
@@ -666,6 +678,7 @@ STRINGS = {
         "weekdays": ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"],
     },
     "ja": {
+        "m_widgets": "ウィジェット", "m_apply_all": "このテーマと言語をすべてに適用", "m_model_row": "下部のモデル",
         "m_rows": "表示行数",
         "models_week": "今週のモデル",
         "now": "現在",
@@ -729,6 +742,7 @@ STRINGS = {
         "weekdays": ["月", "火", "水", "木", "金", "土", "日"],
     },
     "zh": {
+        "m_widgets": "小组件", "m_apply_all": "将此主题和语言应用于全部", "m_model_row": "底部模型",
         "m_rows": "显示行数",
         "models_week": "本周模型",
         "now": "现在",
@@ -884,6 +898,97 @@ def set_dpi_awareness():
         pass
 
 
+# --- усі віджети: увімкнути/вимкнути один з іншого -------------------------
+
+# Кожен віджет — окремий процес. Живий процес пише свій PID у <app>.pid поруч
+# зі скриптом; за ним інші віджети бачать, чи він запущений, і можуть його
+# запустити або закрити зі свого меню «Віджети».
+WIDGETS = [
+    {"app": "ClaudeQuotaWidget", "script": "quota_widget.py",
+     "title": "quota_title", "settings": "settings.json"},
+    {"app": "DailyTasksWidget", "script": "tasks_widget.py",
+     "title": "tasks_title", "settings": "tasks_settings.json"},
+]
+SHARED_KEYS = ("theme", "lang", "alpha")  # «ця тема й мова — для всіх»
+
+_kernel32 = ctypes.windll.kernel32
+_kernel32.OpenProcess.restype = wintypes.HANDLE
+PROCESS_TERMINATE = 0x0001
+PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+STILL_ACTIVE = 259
+
+
+def _pid_path(app):
+    return os.path.join(HERE, app + ".pid")
+
+
+def running_pid(app):
+    """PID живого процесу віджета або None (файл старий, процес помер)."""
+    try:
+        with open(_pid_path(app), "r", encoding="ascii") as f:
+            pid = int(f.read().strip())
+    except (OSError, ValueError):
+        return None
+    handle = _kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+    if not handle:
+        return None
+    try:
+        code = wintypes.DWORD()
+        if not _kernel32.GetExitCodeProcess(handle, ctypes.byref(code)) \
+                or code.value != STILL_ACTIVE:
+            return None
+        # PID міг дістатись іншій програмі — перевіряємо, що це справді python
+        name = ctypes.create_unicode_buffer(1024)
+        size = wintypes.DWORD(1024)
+        if _kernel32.QueryFullProcessImageNameW(handle, 0, name, ctypes.byref(size)) \
+                and "python" not in name.value.lower():
+            return None
+        return pid
+    finally:
+        _kernel32.CloseHandle(handle)
+
+
+def start_widget(script):
+    pythonw = os.path.join(os.path.dirname(sys.executable), "pythonw.exe")
+    if not os.path.exists(pythonw):
+        pythonw = sys.executable
+    subprocess.Popen([pythonw, os.path.join(HERE, script)], cwd=HERE, close_fds=True)
+
+
+def stop_widget(app):
+    pid = running_pid(app)
+    if pid is None:
+        return
+    handle = _kernel32.OpenProcess(PROCESS_TERMINATE, False, pid)
+    if handle:
+        _kernel32.TerminateProcess(handle, 0)
+        _kernel32.CloseHandle(handle)
+    try:
+        os.remove(_pid_path(app))
+    except OSError:
+        pass
+
+
+def already_running(app):
+    """Другий екземпляр того самого віджета не потрібен (start.bat двічі тощо)."""
+    pid = running_pid(app)
+    return pid is not None and pid != os.getpid()
+
+
+def virtual_screen():
+    """(x, y, ширина, висота) усіх моніторів разом — лівий може мати x < 0."""
+    m = _user32.GetSystemMetrics
+    return m(76), m(77), m(78), m(79)
+
+
+def clamp_position(x, y):
+    """Лишити на екрані хоча б шматок заголовка, щоб вікно можна було вхопити."""
+    vx, vy, vw, vh = virtual_screen()
+    x = max(vx - WIDTH + 80, min(x, vx + vw - 80))
+    y = max(vy, min(y, vy + vh - 40))
+    return x, y
+
+
 # --- вікно -------------------------------------------------------------------
 
 
@@ -921,6 +1026,13 @@ class DesktopWindow:
         self.stop = False
         self._pin_timer = None
         self._pin_paused = False
+        self._drag = None
+        if any(w["app"] == self.APP_NAME for w in WIDGETS):
+            try:
+                with open(_pid_path(self.APP_NAME), "w", encoding="ascii") as f:
+                    f.write(str(os.getpid()))
+            except OSError:
+                pass
 
         self._build_header()
         self._build_body()
@@ -1044,7 +1156,53 @@ class DesktopWindow:
                 self.APP_NAME, self.SCRIPT, self.autostart_var.get()),
         )
         self.menu.add_separator()
+
+        widgets = tk.Menu(self.menu, tearoff=0, postcommand=self._sync_widgets_menu)
+        self.widget_vars = {}
+        for w in WIDGETS:
+            var = tk.BooleanVar(value=True)
+            self.widget_vars[w["app"]] = var
+            widgets.add_checkbutton(
+                label=tr(w["title"]), variable=var,
+                command=lambda w=w, v=var: self._toggle_widget(w, v),
+            )
+        widgets.add_separator()
+        widgets.add_command(label=tr("m_apply_all"), command=self.apply_to_all)
+        self.menu.add_cascade(label=tr("m_widgets"), menu=widgets)
+        self.menu.add_separator()
         self.menu.add_command(label=tr("m_close"), command=self.close)
+
+    def _sync_widgets_menu(self):
+        """Галочки — за справжнім станом процесів у мить відкриття меню."""
+        for w in WIDGETS:
+            alive = w["app"] == self.APP_NAME or running_pid(w["app"]) is not None
+            self.widget_vars[w["app"]].set(alive)
+
+    def _toggle_widget(self, w, var):
+        if w["app"] == self.APP_NAME:
+            if not var.get():
+                self.close()
+            return
+        if var.get():
+            if running_pid(w["app"]) is None:
+                start_widget(w["script"])
+        else:
+            stop_widget(w["app"])
+
+    def apply_to_all(self):
+        """Тему, мову й прозорість цього віджета — решті; запущені перезапустити."""
+        for w in WIDGETS:
+            if w["app"] == self.APP_NAME:
+                continue
+            path = os.path.join(HERE, w["settings"])
+            data = load_json(path)
+            for key in SHARED_KEYS:
+                if key in self.settings:
+                    data[key] = self.settings[key]
+            save_json(path, data)
+            if running_pid(w["app"]) is not None:
+                stop_widget(w["app"])
+                start_widget(w["script"])
 
     def _popup(self, event):
         try:
@@ -1178,9 +1336,8 @@ class DesktopWindow:
         y = self.settings.get("y")
         if x is None or y is None:
             x, y = self.default_position()
-        # не дати вікну лишитись за межами екрана
-        x = max(0, min(x, self.root.winfo_screenwidth() - 80))
-        y = max(0, min(y, self.root.winfo_screenheight() - 60))
+        # не дати вікну лишитись за межами екрана (враховуючи всі монітори)
+        x, y = clamp_position(x, y)
         self.root.geometry("%dx%d+%d+%d" % (WIDTH, height, x, y))
         # застосувати одразу: інакше до першого показу вікна Tk встигає
         # перерахувати геометрію сам, і позиція губиться (вікно в куті 0,0)
@@ -1191,14 +1348,20 @@ class DesktopWindow:
                       self.root.winfo_x(), self.root.winfo_y())
 
     def _drag_move(self, event):
-        if not hasattr(self, "_drag"):
+        # лише після натискання саме на віджеті: колись точка відліку лишалась
+        # від давнього перетягування, і вікно відлітало за край екрана (y=-334)
+        if not self._drag:
             return
         sx, sy, wx, wy = self._drag
-        self.root.geometry("+%d+%d" % (wx + event.x_root - sx, wy + event.y_root - sy))
+        x, y = clamp_position(wx + event.x_root - sx, wy + event.y_root - sy)
+        self.root.geometry("+%d+%d" % (x, y))
 
     def _drag_end(self, _event):
-        self.settings["x"] = self.root.winfo_x()
-        self.settings["y"] = self.root.winfo_y()
+        if not self._drag:
+            return  # відпускання без свого натискання (напр. після меню)
+        self._drag = None
+        self.settings["x"], self.settings["y"] = clamp_position(
+            self.root.winfo_x(), self.root.winfo_y())
         self.save_settings()
 
     def fit_height(self):
@@ -1238,6 +1401,11 @@ class DesktopWindow:
         # а у вікна, яке ще не з'явилось на екрані, winfo_x() дає 0 — і закриття
         # такого вікна затирало б збережену позицію нулями
         self.stop = True
+        if running_pid(self.APP_NAME) == os.getpid():
+            try:
+                os.remove(_pid_path(self.APP_NAME))
+            except OSError:
+                pass
         self.root.destroy()
 
     def run(self):

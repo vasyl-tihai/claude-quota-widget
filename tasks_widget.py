@@ -18,8 +18,8 @@ from datetime import datetime
 import tkinter as tk
 import tkinter.font as tkfont
 
-from common import (HERE, PAD, WIDTH, T, DesktopWindow, load_json, save_json,
-                    set_dpi_awareness, tr)
+from common import (HERE, PAD, WIDTH, T, DesktopWindow, already_running, load_json,
+                    save_json, set_dpi_awareness, tr)
 
 TASKS_PATH = os.path.join(HERE, "tasks.json")
 DONE_SHOWN = 15          # скільки виконаних показувати у спойлері
@@ -327,6 +327,8 @@ class TasksWidget(DesktopWindow):
 
 
 def main():
+    if already_running(TasksWidget.APP_NAME):
+        return
     set_dpi_awareness()
     TasksWidget().run()
 

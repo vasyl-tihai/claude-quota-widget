@@ -7,3 +7,4 @@ tasks_settings.json
 *.tmp
 token.txt
 model_usage.json
+*.pid

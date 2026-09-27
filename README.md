@@ -59,6 +59,11 @@ it may lack the scope this endpoint needs. In that case sign in with `claude` / 
 
 Drag a widget with the left mouse button. Settings and tasks are saved next to the scripts.
 
+**Widgets** (in every widget's ⚙ menu) turns the other widgets on or off, so you can bring back the
+tasks list from the quota widget and the other way round. **Use this theme and language for all**
+copies this widget's theme, language and opacity to the others and restarts them if they are running.
+Each widget runs only once: starting it a second time does nothing.
+
 ## Quota widget
 
 | Row | Meaning |
@@ -71,7 +76,8 @@ Drag a widget with the left mouse button. Settings and tasks are saved next to t
 
 **Rows shown** (⚙ menu) lets you turn each row on or off: Today, 5 hours, Week, and each model
 that has its own limit (for example Fable). You can keep just one row. The last visible row can't
-be switched off, so the widget never goes empty.
+be switched off, so the widget never goes empty. At the bottom of the same menu, **Model at the
+bottom** hides or shows the model line.
 
 Colors (in the ⚙ menu):
 
