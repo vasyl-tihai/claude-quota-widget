@@ -1,5 +1,5 @@
 @echo off
-rem Starts both widgets without a console window.
+rem Starts all three widgets without a console window.
 rem Keep this file pure ASCII: cmd.exe reads .bat files in the OEM code page.
 cd /d "%~dp0"
 
@@ -15,3 +15,4 @@ if not defined PYW (
 
 start "" %PYW% "%~dp0quota_widget.py"
 start "" %PYW% "%~dp0tasks_widget.py"
+start "" %PYW% "%~dp0calendar_widget.py"

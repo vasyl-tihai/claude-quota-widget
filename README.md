@@ -1,16 +1,19 @@
-# Claude Quota & Daily Tasks — desktop widgets for Windows
+# Claude Quota, Daily Tasks & Calendar — desktop widgets for Windows
 
-Two small desktop widgets written in plain Python (standard library only, no `pip install`):
+Three small desktop widgets written in plain Python (standard library only, no `pip install`):
 
 - **Claude Quota** (`quota_widget.py`) shows your Claude Code subscription limits:
   the 5‑hour window, the weekly limit, per‑model weekly limits and a **daily budget**
   (1/7 of the week, 14.3% a day). It can also show the model Claude Code answered with last.
 - **Daily Tasks** (`tasks_widget.py`) is a to‑do list for today. Ticked tasks disappear from the list
   but stay under "Done". A separate "Later" list holds tasks you haven't scheduled yet.
+- **Calendar** (`calendar_widget.py`) shows a month grid starting on Monday. Today is highlighted
+  and weekends are colored. Scroll the mouse wheel or click ▲/▼ to change months, and click the
+  month name to jump back to today.
 
 ![Claude Quota and Daily Tasks widgets in dark, light and sand themes](docs/screenshot.png)
 
-Both widgets sit on the desktop under your windows by default (or stay always on top),
+All widgets sit on the desktop under your windows by default (or stay always on top),
 have rounded corners, six color themes and 13 languages:
 English, Українська, Polski, Deutsch, Español, Français, Italiano, Português, Nederlands,
 Čeština, Türkçe, 日本語 and 简体中文. The Windows display language is used on the first run.
@@ -24,7 +27,7 @@ English, Українська, Polski, Deutsch, Español, Français, Italiano, P
   "Claude account with subscription"). The widget reads the token that Claude Code stores in
   `%USERPROFILE%\.claude\.credentials.json`.
 
-The tasks widget has no requirements beyond Python.
+The tasks and calendar widgets have no requirements beyond Python.
 
 ### Using your own token
 
@@ -53,8 +56,9 @@ it may lack the scope this endpoint needs. In that case sign in with `claude` / 
 ## Install
 
 1. Download the repository (**Code → Download ZIP**) and unpack it anywhere, or `git clone` it.
-2. Double‑click **`start.bat`** to start both widgets.
-   You can also start just one of them: `pythonw quota_widget.py` or `pythonw tasks_widget.py`.
+2. Double‑click **`start.bat`** to start all three widgets.
+   You can also start just one: `pythonw quota_widget.py`, `pythonw tasks_widget.py` or
+   `pythonw calendar_widget.py`. Once one is running, turn the others on or off in its ⚙ menu under **Widgets**.
 3. To start a widget with Windows, open its menu (⚙ or right click) and turn on **Start with Windows**.
 
 Drag a widget with the left mouse button. Settings and tasks are saved next to the scripts.
@@ -131,8 +135,9 @@ that model in the list.
 | `common.py` | shared window behaviour, themes, translations |
 | `quota_widget.py` | the quota widget |
 | `tasks_widget.py` | the tasks widget |
-| `start.bat` | starts both widgets without a console window |
-| `settings.json`, `state.json`, `tasks.json`, `tasks_settings.json`, `token.txt`, `model_usage.json` | created at runtime, not in git |
+| `calendar_widget.py` | the calendar widget |
+| `start.bat` | starts all three widgets without a console window |
+| `settings.json`, `state.json`, `tasks.json`, `tasks_settings.json`, `calendar_settings.json`, `token.txt`, `model_usage.json` | created at runtime, not in git |
 | `docs/screenshot.png` | the picture above (demo data) |
 
 ## Adding a language
@@ -148,13 +153,14 @@ MIT. See [LICENSE](LICENSE). This project is not affiliated with or endorsed by 
 
 ## Українською
 
-Два віджети для робочого столу Windows на чистому Python:
+Три віджети для робочого столу Windows на чистому Python:
 
 - **Квота Claude** показує 5‑годинний і тижневий ліміти підписки Claude Code, ліміти по
   моделях і **денну норму** (1/7 тижня). Внизу видно модель, якою Claude Code відповідав останнім.
 - У меню можна лишити лише потрібні показники (наприклад, тільки «Сьогодні»). 13 мов інтерфейсу.
 - **Задачі на сьогодні**: виконана задача зникає зі списку, але лишається у «Виконаних».
   Є окремий список «На потім».
+- **Календар**: місяць від понеділка, сьогодні виділено, гортання колесом або ▲/▼.
 
 Встановлення: поставити Python 3.8+, завантажити архів, запустити `start.bat`.
 Автозапуск вмикається в меню ⚙. Для віджета квоти треба один раз увійти в `claude` у терміналі

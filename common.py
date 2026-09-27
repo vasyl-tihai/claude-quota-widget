@@ -144,6 +144,7 @@ LANG_NAMES = {"uk": "Українська", "en": "English", "pl": "Polski", "de
 
 STRINGS = {
     "uk": {
+        "calendar": "Календар", "cal_go_today": "До поточного місяця",
         "m_pace_tick": "Мітка рівного темпу на тижні",
         "m_widgets": "Віджети", "m_apply_all": "Ця тема й мова — для всіх", "m_model_row": "Модель унизу",
         "m_rows": "Показники",
@@ -175,6 +176,7 @@ STRINGS = {
         "weekdays": ["пн", "вт", "ср", "чт", "пт", "сб", "нд"],
     },
     "en": {
+        "calendar": "Calendar", "cal_go_today": "Go to current month",
         "m_pace_tick": "Even-pace mark on Week",
         "m_widgets": "Widgets", "m_apply_all": "Use this theme and language for all", "m_model_row": "Model at the bottom",
         "m_rows": "Rows shown",
@@ -206,6 +208,7 @@ STRINGS = {
         "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     },
     "pl": {
+        "calendar": "Kalendarz", "cal_go_today": "Do bieżącego miesiąca",
         "m_pace_tick": "Znacznik równego tempa (tydzień)",
         "m_widgets": "Widżety", "m_apply_all": "Ten motyw i język dla wszystkich", "m_model_row": "Model na dole",
         "m_rows": "Wskaźniki",
@@ -238,6 +241,7 @@ STRINGS = {
         "weekdays": ["pn", "wt", "śr", "czw", "pt", "sob", "nd"],
     },
     "de": {
+        "calendar": "Kalender", "cal_go_today": "Zum aktuellen Monat",
         "m_pace_tick": "Gleichmaß-Marke bei Woche",
         "m_widgets": "Widgets", "m_apply_all": "Dieses Design und diese Sprache für alle", "m_model_row": "Modell unten",
         "m_rows": "Anzeigen",
@@ -269,6 +273,7 @@ STRINGS = {
         "weekdays": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
     },
     "es": {
+        "calendar": "Calendario", "cal_go_today": "Ir al mes actual",
         "m_pace_tick": "Marca de ritmo uniforme (semana)",
         "m_widgets": "Widgets", "m_apply_all": "Este tema e idioma para todos", "m_model_row": "Modelo abajo",
         "m_rows": "Indicadores",
@@ -300,6 +305,7 @@ STRINGS = {
         "weekdays": ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"],
     },
     "fr": {
+        "calendar": "Calendrier", "cal_go_today": "Aller au mois en cours",
         "m_pace_tick": "Repère de rythme régulier (semaine)",
         "m_widgets": "Widgets", "m_apply_all": "Ce thème et cette langue pour tous", "m_model_row": "Modèle en bas",
         "m_rows": "Lignes affichées",
@@ -365,6 +371,7 @@ STRINGS = {
         "weekdays": ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"],
     },
     "it": {
+        "calendar": "Calendario", "cal_go_today": "Vai al mese corrente",
         "m_pace_tick": "Segno di ritmo costante (settimana)",
         "m_widgets": "Widget", "m_apply_all": "Questo tema e lingua per tutti", "m_model_row": "Modello in basso",
         "m_rows": "Righe mostrate",
@@ -430,6 +437,7 @@ STRINGS = {
         "weekdays": ["lun", "mar", "mer", "gio", "ven", "sab", "dom"],
     },
     "pt": {
+        "calendar": "Calendário", "cal_go_today": "Ir para o mês atual",
         "m_pace_tick": "Marca de ritmo uniforme (semana)",
         "m_widgets": "Widgets", "m_apply_all": "Este tema e idioma para todos", "m_model_row": "Modelo embaixo",
         "m_rows": "Linhas exibidas",
@@ -495,6 +503,7 @@ STRINGS = {
         "weekdays": ["seg", "ter", "qua", "qui", "sex", "sáb", "dom"],
     },
     "nl": {
+        "calendar": "Kalender", "cal_go_today": "Naar huidige maand",
         "m_pace_tick": "Markering gelijk tempo (week)",
         "m_widgets": "Widgets", "m_apply_all": "Dit thema en deze taal voor alle", "m_model_row": "Model onderaan",
         "m_rows": "Weergegeven rijen",
@@ -560,6 +569,7 @@ STRINGS = {
         "weekdays": ["ma", "di", "wo", "do", "vr", "za", "zo"],
     },
     "cs": {
+        "calendar": "Kalendář", "cal_go_today": "Na aktuální měsíc",
         "m_pace_tick": "Značka rovnoměrného tempa (týden)",
         "m_widgets": "Widgety", "m_apply_all": "Tento motiv a jazyk pro všechny", "m_model_row": "Model dole",
         "m_rows": "Zobrazené řádky",
@@ -625,6 +635,7 @@ STRINGS = {
         "weekdays": ["po", "út", "st", "čt", "pá", "so", "ne"],
     },
     "tr": {
+        "calendar": "Takvim", "cal_go_today": "Bu aya git",
         "m_pace_tick": "Hafta için eşit tempo işareti",
         "m_widgets": "Widget'lar", "m_apply_all": "Bu tema ve dili tümüne uygula", "m_model_row": "Alttaki model",
         "m_rows": "Gösterilen satırlar",
@@ -690,6 +701,7 @@ STRINGS = {
         "weekdays": ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"],
     },
     "ja": {
+        "calendar": "カレンダー", "cal_go_today": "今月に戻る",
         "m_pace_tick": "週の均等ペースの目印",
         "m_widgets": "ウィジェット", "m_apply_all": "このテーマと言語をすべてに適用", "m_model_row": "下部のモデル",
         "m_rows": "表示行数",
@@ -755,6 +767,7 @@ STRINGS = {
         "weekdays": ["月", "火", "水", "木", "金", "土", "日"],
     },
     "zh": {
+        "calendar": "日历", "cal_go_today": "回到本月",
         "m_pace_tick": "本周均匀进度标记",
         "m_widgets": "小组件", "m_apply_all": "将此主题和语言应用于全部", "m_model_row": "底部模型",
         "m_rows": "显示行数",
@@ -922,6 +935,8 @@ WIDGETS = [
      "title": "quota_title", "settings": "settings.json"},
     {"app": "DailyTasksWidget", "script": "tasks_widget.py",
      "title": "tasks_title", "settings": "tasks_settings.json"},
+    {"app": "DesktopCalendarWidget", "script": "calendar_widget.py",
+     "title": "calendar", "settings": "calendar_settings.json"},
 ]
 SHARED_KEYS = ("theme", "lang", "alpha")  # «ця тема й мова — для всіх»
 
@@ -1018,6 +1033,8 @@ class DesktopWindow:
     SCRIPT = ""
     SETTINGS_FILE = ""
     TITLE_KEY = ""
+    WIDTH = WIDTH        # календар ширший — перевизначає
+    HEAD_PADX = PAD
 
     def __init__(self):
         self.root = tk.Tk()
@@ -1079,7 +1096,7 @@ class DesktopWindow:
 
     def _build_header(self):
         self.head = tk.Frame(self.root, bg=T["bg"])
-        self.head.pack(fill="x", padx=PAD, pady=(11, 9))
+        self.head.pack(fill="x", padx=self.HEAD_PADX, pady=(11, 9))
 
         self.head_title = tk.Label(
             self.head, text=tr(self.TITLE_KEY), bg=T["bg"], fg=T["fg"],
@@ -1349,7 +1366,7 @@ class DesktopWindow:
         save_json(self.settings_path, self.settings)
 
     def default_position(self):
-        return self.root.winfo_screenwidth() - WIDTH - 24, 60
+        return self.root.winfo_screenwidth() - self.WIDTH - 24, 60
 
     def _restore_position(self):
         self.root.update_idletasks()
@@ -1360,7 +1377,7 @@ class DesktopWindow:
             x, y = self.default_position()
         # не дати вікну лишитись за межами екрана (враховуючи всі монітори)
         x, y = clamp_position(x, y)
-        self.root.geometry("%dx%d+%d+%d" % (WIDTH, height, x, y))
+        self.root.geometry("%dx%d+%d+%d" % (self.WIDTH, height, x, y))
         # застосувати одразу: інакше до першого показу вікна Tk встигає
         # перерахувати геометрію сам, і позиція губиться (вікно в куті 0,0)
         self.root.update_idletasks()
@@ -1388,7 +1405,7 @@ class DesktopWindow:
 
     def fit_height(self):
         self.root.update_idletasks()
-        self.root.geometry("%dx%d" % (WIDTH, self.root.winfo_reqheight() + 6))
+        self.root.geometry("%dx%d" % (self.WIDTH, self.root.winfo_reqheight() + 6))
         self._apply_region()  # висота змінилась — регіон треба перерізати
 
     def set_alpha(self, value):

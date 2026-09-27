@@ -3,6 +3,7 @@ state.json
 settings.json
 tasks.json
 tasks_settings.json
+calendar_settings.json
 *.bak
 *.tmp
 token.txt
