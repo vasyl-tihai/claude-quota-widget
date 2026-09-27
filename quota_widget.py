@@ -807,6 +807,9 @@ class QuotaWidget(DesktopWindow):
             rows.add_checkbutton(label=label, variable=var,
                                  command=lambda k=key, v=var: self.toggle_row(k, v))
         rows.add_separator()
+        self.pace_var = tk.BooleanVar(value=self.settings.get("pace_tick", False))
+        rows.add_checkbutton(label=tr("m_pace_tick"), variable=self.pace_var,
+                             command=self._toggle_pace)
         self.model_row_var = tk.BooleanVar(value=self.models_mode() != "off")
         rows.add_checkbutton(label=tr("m_model_row"), variable=self.model_row_var,
                              command=self._toggle_model_row)
@@ -833,6 +836,11 @@ class QuotaWidget(DesktopWindow):
         self.save_settings()
         for row in self._rows():
             row._redraw()
+
+    def _toggle_pace(self):
+        self.settings["pace_tick"] = self.pace_var.get()
+        self.save_settings()
+        self.render()
 
     def _toggle_model_row(self):
         """Прибрати/повернути напис моделі; повертається той режим, що був."""
@@ -1064,7 +1072,10 @@ class QuotaWidget(DesktopWindow):
         # --- тиждень (з міткою «де мав би бути» темпом) ---
         if weekly:
             self.week_row.value.config(text="%d%%" % round(weekly_percent))
-            self.week_row.draw(weekly_percent, tick=day["pace"] if day else None)
+            # мітка рівномірного темпу — лише на бажання: без пояснення вона
+            # читається як зайва рисочка на смузі
+            pace = day["pace"] if day and self.settings.get("pace_tick", False) else None
+            self.week_row.draw(weekly_percent, tick=pace)
             self.week_row.note.config(text=fmt_reset(weekly["resets_at"], with_weekday=True))
 
         # --- ліміти по моделях ---

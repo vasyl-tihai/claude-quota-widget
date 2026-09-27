@@ -14,6 +14,7 @@ import winreg
 from ctypes import wintypes
 
 import tkinter as tk
+import tkinter.font as tkfont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -143,6 +144,7 @@ LANG_NAMES = {"uk": "Українська", "en": "English", "pl": "Polski", "de
 
 STRINGS = {
     "uk": {
+        "m_pace_tick": "Мітка рівного темпу на тижні",
         "m_widgets": "Віджети", "m_apply_all": "Ця тема й мова — для всіх", "m_model_row": "Модель унизу",
         "m_rows": "Показники",
         "models_week": "Моделі за тиждень", "now": "зараз", "models_loading": "Моделі: рахую…",
@@ -173,6 +175,7 @@ STRINGS = {
         "weekdays": ["пн", "вт", "ср", "чт", "пт", "сб", "нд"],
     },
     "en": {
+        "m_pace_tick": "Even-pace mark on Week",
         "m_widgets": "Widgets", "m_apply_all": "Use this theme and language for all", "m_model_row": "Model at the bottom",
         "m_rows": "Rows shown",
         "models_week": "Models this week", "now": "now", "models_loading": "Models: counting…",
@@ -203,6 +206,7 @@ STRINGS = {
         "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     },
     "pl": {
+        "m_pace_tick": "Znacznik równego tempa (tydzień)",
         "m_widgets": "Widżety", "m_apply_all": "Ten motyw i język dla wszystkich", "m_model_row": "Model na dole",
         "m_rows": "Wskaźniki",
         "models_week": "Modele w tym tygodniu", "now": "teraz", "models_loading": "Modele: liczę…",
@@ -234,6 +238,7 @@ STRINGS = {
         "weekdays": ["pn", "wt", "śr", "czw", "pt", "sob", "nd"],
     },
     "de": {
+        "m_pace_tick": "Gleichmaß-Marke bei Woche",
         "m_widgets": "Widgets", "m_apply_all": "Dieses Design und diese Sprache für alle", "m_model_row": "Modell unten",
         "m_rows": "Anzeigen",
         "models_week": "Modelle diese Woche", "now": "jetzt", "models_loading": "Modelle: zähle…",
@@ -264,6 +269,7 @@ STRINGS = {
         "weekdays": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
     },
     "es": {
+        "m_pace_tick": "Marca de ritmo uniforme (semana)",
         "m_widgets": "Widgets", "m_apply_all": "Este tema e idioma para todos", "m_model_row": "Modelo abajo",
         "m_rows": "Indicadores",
         "models_week": "Modelos esta semana", "now": "ahora", "models_loading": "Modelos: contando…",
@@ -294,6 +300,7 @@ STRINGS = {
         "weekdays": ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"],
     },
     "fr": {
+        "m_pace_tick": "Repère de rythme régulier (semaine)",
         "m_widgets": "Widgets", "m_apply_all": "Ce thème et cette langue pour tous", "m_model_row": "Modèle en bas",
         "m_rows": "Lignes affichées",
         "models_week": "Modèles cette semaine",
@@ -358,6 +365,7 @@ STRINGS = {
         "weekdays": ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"],
     },
     "it": {
+        "m_pace_tick": "Segno di ritmo costante (settimana)",
         "m_widgets": "Widget", "m_apply_all": "Questo tema e lingua per tutti", "m_model_row": "Modello in basso",
         "m_rows": "Righe mostrate",
         "models_week": "Modelli questa settimana",
@@ -422,6 +430,7 @@ STRINGS = {
         "weekdays": ["lun", "mar", "mer", "gio", "ven", "sab", "dom"],
     },
     "pt": {
+        "m_pace_tick": "Marca de ritmo uniforme (semana)",
         "m_widgets": "Widgets", "m_apply_all": "Este tema e idioma para todos", "m_model_row": "Modelo embaixo",
         "m_rows": "Linhas exibidas",
         "models_week": "Modelos esta semana",
@@ -486,6 +495,7 @@ STRINGS = {
         "weekdays": ["seg", "ter", "qua", "qui", "sex", "sáb", "dom"],
     },
     "nl": {
+        "m_pace_tick": "Markering gelijk tempo (week)",
         "m_widgets": "Widgets", "m_apply_all": "Dit thema en deze taal voor alle", "m_model_row": "Model onderaan",
         "m_rows": "Weergegeven rijen",
         "models_week": "Modellen deze week",
@@ -550,6 +560,7 @@ STRINGS = {
         "weekdays": ["ma", "di", "wo", "do", "vr", "za", "zo"],
     },
     "cs": {
+        "m_pace_tick": "Značka rovnoměrného tempa (týden)",
         "m_widgets": "Widgety", "m_apply_all": "Tento motiv a jazyk pro všechny", "m_model_row": "Model dole",
         "m_rows": "Zobrazené řádky",
         "models_week": "Modely tento týden",
@@ -614,6 +625,7 @@ STRINGS = {
         "weekdays": ["po", "út", "st", "čt", "pá", "so", "ne"],
     },
     "tr": {
+        "m_pace_tick": "Hafta için eşit tempo işareti",
         "m_widgets": "Widget'lar", "m_apply_all": "Bu tema ve dili tümüne uygula", "m_model_row": "Alttaki model",
         "m_rows": "Gösterilen satırlar",
         "models_week": "Bu haftaki modeller",
@@ -678,6 +690,7 @@ STRINGS = {
         "weekdays": ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"],
     },
     "ja": {
+        "m_pace_tick": "週の均等ペースの目印",
         "m_widgets": "ウィジェット", "m_apply_all": "このテーマと言語をすべてに適用", "m_model_row": "下部のモデル",
         "m_rows": "表示行数",
         "models_week": "今週のモデル",
@@ -742,6 +755,7 @@ STRINGS = {
         "weekdays": ["月", "火", "水", "木", "金", "土", "日"],
     },
     "zh": {
+        "m_pace_tick": "本周均匀进度标记",
         "m_widgets": "小组件", "m_apply_all": "将此主题和语言应用于全部", "m_model_row": "底部模型",
         "m_rows": "显示行数",
         "models_week": "本周模型",
@@ -1073,10 +1087,18 @@ class DesktopWindow:
         )
         self.head_title.pack(side="left")
 
-        # ⚙ праворуч: те саме меню, що на правій кнопці, але його видно
+        # шестірня праворуч: те саме меню, що на правій кнопці, але його видно.
+        # Символ «⚙» у Segoe UI малюється схожим на квітку, тому беремо значок
+        # «Параметри» зі шрифту значків Windows (Win11 — Fluent, Win10 — MDL2)
+        text, font = "⚙", ("Segoe UI", 9)
+        families = set(tkfont.families(self.root))
+        for family in ("Segoe Fluent Icons", "Segoe MDL2 Assets"):
+            if family in families:
+                text, font = "\uE713", (family, 10)
+                break
         self.gear = tk.Label(
-            self.head, text="⚙", bg=T["bg"], fg=T["muted"],
-            font=("Segoe UI", 9), width=2, cursor="hand2",
+            self.head, text=text, bg=T["bg"], fg=T["muted"],
+            font=font, width=2, cursor="hand2",
         )
         self.gear.pack(side="right")
         self.gear.bind("<Button-1>", lambda _e: self._open_menu())
