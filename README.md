@@ -11,8 +11,9 @@ Two small desktop widgets written in plain Python (standard library only, no `pi
 ![Claude Quota and Daily Tasks widgets in dark, light and sand themes](docs/screenshot.png)
 
 Both widgets sit on the desktop under your windows by default (or stay always on top),
-have rounded corners, six color themes and five languages:
-English, Українська, Polski, Deutsch, Español.
+have rounded corners, six color themes and 13 languages:
+English, Українська, Polski, Deutsch, Español, Français, Italiano, Português, Nederlands,
+Čeština, Türkçe, 日本語 and 简体中文. The Windows display language is used on the first run.
 
 ## Requirements
 
@@ -67,6 +68,10 @@ Drag a widget with the left mouse button. Settings and tasks are saved next to t
 | Week | the weekly limit. The thin tick marks where you'd be if you used the week evenly |
 | model rows | per‑model weekly limits, when your plan has them |
 | Model: … | the model of the most recent Claude Code reply, read from the local session logs (see below) |
+
+**Rows shown** (⚙ menu) lets you turn each row on or off: Today, 5 hours, Week, and each model
+that has its own limit (for example Fable). You can keep just one row. The last visible row can't
+be switched off, so the widget never goes empty.
 
 Colors (in the ⚙ menu):
 
@@ -127,7 +132,7 @@ that model in the list.
 ## Adding a language
 
 Copy one block in `STRINGS` in `common.py`, translate the values, and add the code to
-`LANG_ORDER` and `LANG_NAMES`. Short status texts must stay under about 140 px in the header.
+`LANG_ORDER`, `LANG_NAMES` and the Windows language map in `detect_lang()`. Short status texts must stay under about 140 px in the header.
 
 ## License
 
@@ -141,6 +146,7 @@ MIT. See [LICENSE](LICENSE). This project is not affiliated with or endorsed by 
 
 - **Квота Claude** показує 5‑годинний і тижневий ліміти підписки Claude Code, ліміти по
   моделях і **денну норму** (1/7 тижня). Внизу видно модель, якою Claude Code відповідав останнім.
+- У меню можна лишити лише потрібні показники (наприклад, тільки «Сьогодні»). 13 мов інтерфейсу.
 - **Задачі на сьогодні**: виконана задача зникає зі списку, але лишається у «Виконаних».
   Є окремий список «На потім».
 

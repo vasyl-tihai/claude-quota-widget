@@ -713,6 +713,7 @@ class QuotaWidget(DesktopWindow):
         self._timer = None
         self._model_timer = None
         self.usage = ModelUsage()
+        self.scoped_titles = []  # моделі з окремим лімітом — для меню «Показники»
         self._scanning = False
         super().__init__()
         self.status.config(text="…")
@@ -795,6 +796,17 @@ class QuotaWidget(DesktopWindow):
                 command=lambda v=value: self.set_models_mode(v),
             )
         menu.add_cascade(label=tr("m_models"), menu=models)
+
+        rows = tk.Menu(menu, tearoff=0)
+        self.row_vars = {}
+        labels = [("today", tr("today")), ("session", tr("session")), ("week", tr("week"))]
+        labels += [("m:" + t, t) for t in self.scoped_titles]
+        for key, label in labels:
+            var = tk.BooleanVar(value=self.row_visible(key))
+            self.row_vars[key] = var
+            rows.add_checkbutton(label=label, variable=var,
+                                 command=lambda k=key, v=var: self.toggle_row(k, v))
+        menu.add_cascade(label=tr("m_rows"), menu=rows)
         menu.add_separator()
 
     def ask_token(self):
@@ -963,6 +975,46 @@ class QuotaWidget(DesktopWindow):
                 text="%02d:%02d" % (self.updated_at.hour, self.updated_at.minute),
                 fg=T["muted"])
 
+    # -- які показники видно --------------------------------------------------
+
+    def row_visible(self, key):
+        return key not in self.settings.get("hidden", [])
+
+    def _row_keys(self):
+        return ["today", "session", "week"] + ["m:" + t for t in self.scoped_titles]
+
+    def toggle_row(self, key, var):
+        hidden = set(self.settings.get("hidden", []))
+        if var.get():
+            hidden.discard(key)
+        else:
+            hidden.add(key)
+            if all(k in hidden for k in self._row_keys()):
+                var.set(True)  # останній показник не прибираємо — віджет став би порожнім
+                return
+        self.settings["hidden"] = sorted(hidden)
+        self.save_settings()
+        self.render() if self.data else self._layout()
+
+    def _layout(self):
+        """Перепакувати рядки в сталому порядку, пропускаючи приховані."""
+        parts = [self.day_row.frame, self.separator, self.session_row.frame,
+                 self.week_row.frame, self.scoped_box, self.models.frame]
+        for widget in parts:
+            widget.pack_forget()
+        below = any(self.row_visible(k) for k in self._row_keys()[1:])
+        if self.row_visible("today"):
+            self.day_row.frame.pack(fill="x", padx=PAD, pady=(0, 10))
+            if below:
+                self.separator.pack(fill="x", padx=PAD, pady=(2, 10))
+        if self.row_visible("session"):
+            self.session_row.frame.pack(fill="x", padx=PAD, pady=(0, 10))
+        if self.row_visible("week"):
+            self.week_row.frame.pack(fill="x", padx=PAD, pady=(0, 10))
+        self.scoped_box.pack(fill="x")
+        self._place_models()
+        self.fit_height()
+
     def render(self):
         data = self.data
         if not data:
@@ -1005,8 +1057,20 @@ class QuotaWidget(DesktopWindow):
             self.scoped_rows.append(row)
             self.bind_drag(row.frame)
 
+        titles = [entry["title"] or tr("model_limit") for entry in scoped]
+        if titles != self.scoped_titles:
+            # з'явилась чи зникла модель з окремим лімітом — її галочка в меню
+            self.scoped_titles = titles
+            self.menu.destroy()
+            self._build_menu()
+
+        # спершу зняти всі: інакше після приховування й повернення рядки
+        # переставлялись би в іншому порядку
+        for row in self.scoped_rows:
+            row.frame.pack_forget()
         for row, entry in zip(self.scoped_rows, scoped):
-            row.frame.pack(fill="x", padx=PAD, pady=(0, 10))
+            if self.row_visible("m:" + (entry["title"] or tr("model_limit"))):
+                row.frame.pack(fill="x", padx=PAD, pady=(0, 10))
             row.title.config(text=entry["title"] or tr("model_limit"))
             family = (entry["title"] or "").split(" ")[0].lower()
             # той самий колір моделі, що й у блоці моделей унизу
@@ -1015,10 +1079,7 @@ class QuotaWidget(DesktopWindow):
             row.draw(entry["percent"])
             row.note.config(text=fmt_reset(entry["resets_at"], with_weekday=True))
 
-        for row in self.scoped_rows[len(scoped):]:
-            row.frame.pack_forget()
-
-        self.fit_height()
+        self._layout()
 
 
 def main():
