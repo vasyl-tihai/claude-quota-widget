@@ -144,6 +144,7 @@ LANG_NAMES = {"uk": "Українська", "en": "English", "pl": "Polski", "de
 
 STRINGS = {
     "uk": {
+        "st_wait_cli": "чекаю на claude",
         "calendar": "Календар", "cal_go_today": "До поточного місяця",
         "m_pace_tick": "Мітка рівного темпу на тижні",
         "m_widgets": "Віджети", "m_apply_all": "Ця тема й мова — для всіх", "m_model_row": "Модель унизу",
@@ -176,6 +177,7 @@ STRINGS = {
         "weekdays": ["пн", "вт", "ср", "чт", "пт", "сб", "нд"],
     },
     "en": {
+        "st_wait_cli": "waiting for claude",
         "calendar": "Calendar", "cal_go_today": "Go to current month",
         "m_pace_tick": "Even-pace mark on Week",
         "m_widgets": "Widgets", "m_apply_all": "Use this theme and language for all", "m_model_row": "Model at the bottom",
@@ -208,6 +210,7 @@ STRINGS = {
         "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     },
     "pl": {
+        "st_wait_cli": "czekam na claude",
         "calendar": "Kalendarz", "cal_go_today": "Do bieżącego miesiąca",
         "m_pace_tick": "Znacznik równego tempa (tydzień)",
         "m_widgets": "Widżety", "m_apply_all": "Ten motyw i język dla wszystkich", "m_model_row": "Model na dole",
@@ -241,6 +244,7 @@ STRINGS = {
         "weekdays": ["pn", "wt", "śr", "czw", "pt", "sob", "nd"],
     },
     "de": {
+        "st_wait_cli": "warte auf claude",
         "calendar": "Kalender", "cal_go_today": "Zum aktuellen Monat",
         "m_pace_tick": "Gleichmaß-Marke bei Woche",
         "m_widgets": "Widgets", "m_apply_all": "Dieses Design und diese Sprache für alle", "m_model_row": "Modell unten",
@@ -273,6 +277,7 @@ STRINGS = {
         "weekdays": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
     },
     "es": {
+        "st_wait_cli": "esperando a claude",
         "calendar": "Calendario", "cal_go_today": "Ir al mes actual",
         "m_pace_tick": "Marca de ritmo uniforme (semana)",
         "m_widgets": "Widgets", "m_apply_all": "Este tema e idioma para todos", "m_model_row": "Modelo abajo",
@@ -305,6 +310,7 @@ STRINGS = {
         "weekdays": ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"],
     },
     "fr": {
+        "st_wait_cli": "attente de claude",
         "calendar": "Calendrier", "cal_go_today": "Aller au mois en cours",
         "m_pace_tick": "Repère de rythme régulier (semaine)",
         "m_widgets": "Widgets", "m_apply_all": "Ce thème et cette langue pour tous", "m_model_row": "Modèle en bas",
@@ -371,6 +377,7 @@ STRINGS = {
         "weekdays": ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"],
     },
     "it": {
+        "st_wait_cli": "attendo claude",
         "calendar": "Calendario", "cal_go_today": "Vai al mese corrente",
         "m_pace_tick": "Segno di ritmo costante (settimana)",
         "m_widgets": "Widget", "m_apply_all": "Questo tema e lingua per tutti", "m_model_row": "Modello in basso",
@@ -437,6 +444,7 @@ STRINGS = {
         "weekdays": ["lun", "mar", "mer", "gio", "ven", "sab", "dom"],
     },
     "pt": {
+        "st_wait_cli": "aguardando claude",
         "calendar": "Calendário", "cal_go_today": "Ir para o mês atual",
         "m_pace_tick": "Marca de ritmo uniforme (semana)",
         "m_widgets": "Widgets", "m_apply_all": "Este tema e idioma para todos", "m_model_row": "Modelo embaixo",
@@ -503,6 +511,7 @@ STRINGS = {
         "weekdays": ["seg", "ter", "qua", "qui", "sex", "sáb", "dom"],
     },
     "nl": {
+        "st_wait_cli": "wacht op claude",
         "calendar": "Kalender", "cal_go_today": "Naar huidige maand",
         "m_pace_tick": "Markering gelijk tempo (week)",
         "m_widgets": "Widgets", "m_apply_all": "Dit thema en deze taal voor alle", "m_model_row": "Model onderaan",
@@ -569,6 +578,7 @@ STRINGS = {
         "weekdays": ["ma", "di", "wo", "do", "vr", "za", "zo"],
     },
     "cs": {
+        "st_wait_cli": "čekám na claude",
         "calendar": "Kalendář", "cal_go_today": "Na aktuální měsíc",
         "m_pace_tick": "Značka rovnoměrného tempa (týden)",
         "m_widgets": "Widgety", "m_apply_all": "Tento motiv a jazyk pro všechny", "m_model_row": "Model dole",
@@ -635,6 +645,7 @@ STRINGS = {
         "weekdays": ["po", "út", "st", "čt", "pá", "so", "ne"],
     },
     "tr": {
+        "st_wait_cli": "claude bekleniyor",
         "calendar": "Takvim", "cal_go_today": "Bu aya git",
         "m_pace_tick": "Hafta için eşit tempo işareti",
         "m_widgets": "Widget'lar", "m_apply_all": "Bu tema ve dili tümüne uygula", "m_model_row": "Alttaki model",
@@ -701,6 +712,7 @@ STRINGS = {
         "weekdays": ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"],
     },
     "ja": {
+        "st_wait_cli": "claude待ち",
         "calendar": "カレンダー", "cal_go_today": "今月に戻る",
         "m_pace_tick": "週の均等ペースの目印",
         "m_widgets": "ウィジェット", "m_apply_all": "このテーマと言語をすべてに適用", "m_model_row": "下部のモデル",
@@ -767,6 +779,7 @@ STRINGS = {
         "weekdays": ["月", "火", "水", "木", "金", "土", "日"],
     },
     "zh": {
+        "st_wait_cli": "等待 claude",
         "calendar": "日历", "cal_go_today": "回到本月",
         "m_pace_tick": "本周均匀进度标记",
         "m_widgets": "小组件", "m_apply_all": "将此主题和语言应用于全部", "m_model_row": "底部模型",

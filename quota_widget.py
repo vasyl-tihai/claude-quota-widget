@@ -54,6 +54,58 @@ class RefreshFailed(Exception):
     """Сервер відмовив у продовженні токена — потрібен ручний вхід."""
 
 
+class WaitForCli(Exception):
+    """Працює термінальний claude — продовжувати токен має він, а не віджет."""
+
+
+AUTH_LOG = os.path.join(HERE, "auth.log")
+
+
+def auth_log(text):
+    """Журнал спроб продовження — лише час і результат, без значень токенів."""
+    try:
+        with open(AUTH_LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (datetime.now().strftime("%d.%m.%Y %H:%M:%S"), text))
+    except OSError:
+        pass
+
+
+def terminal_claude_running():
+    """Чи працює зараз термінальний claude (інтерактивний чи `claude -p`).
+
+    Кожне продовження видає НОВИЙ refresh-токен, а старий тут же вмирає.
+    Термінальний claude тримає свій refresh-токен у пам'яті: якщо віджет
+    продовжить токен посеред його роботи, той спробує продовжитись уже
+    мертвим, отримає відмову й ОБНУЛИТЬ .credentials.json — і далі потрібен
+    ручний /login. Саме так 28.09.2026 о 19:20 ліг автобідер.
+
+    Сесії застосунку Claude мають у командному рядку `stream-json` і файлом
+    входу не користуються — їх не рахуємо. Перевірка через PowerShell, бо
+    командні рядки чужих процесів стандартна бібліотека не читає; викликається
+    лише перед продовженням, тобто раз на кілька годин.
+    """
+    import subprocess
+    script = ("Get-CimInstance Win32_Process -Filter \"Name='claude.exe' or Name='node.exe'\""
+              " | ForEach-Object { $_.CommandLine }")
+    try:
+        out = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
+            capture_output=True, text=True, timeout=20,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        ).stdout
+    except (OSError, subprocess.SubprocessError):
+        return False  # не змогли перевірити — поводимось як раніше
+    for line in out.splitlines():
+        low = line.lower()
+        if not low.strip() or "stream-json" in low or "anthropicclaude" in low:
+            continue  # сесія застосунку або сам застосунок (Electron)
+        if "native-host" in low:
+            continue  # міст до Chrome: може жити постійно, токенів не продовжує
+        if "claude.exe" in low or "claude-code" in low or "@anthropic-ai" in low:
+            return True
+    return False
+
+
 def read_credentials():
     with open(CRED_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -81,6 +133,9 @@ def refresh_credentials(force=False):
         # CLI сам обнуляє токени у файлі, коли refresh-токен протух (~14 днів):
         # продовжувати нічим, а запит із порожнім токеном — просто 400
         raise RefreshFailed("refresh-токен порожній")
+    if terminal_claude_running():
+        auth_log("продовження відкладено: працює термінальний claude")
+        raise WaitForCli()
     body = json.dumps({
         "grant_type": "refresh_token",
         "refresh_token": oauth["refreshToken"],
@@ -101,7 +156,9 @@ def refresh_credentials(force=False):
         access = tok["access_token"]
     except (urllib.error.HTTPError, ValueError, KeyError) as exc:
         # refresh_token мертвий або відкликаний — самі вже не полагодимо
+        auth_log("продовження НЕ вдалось: %s" % getattr(exc, "code", type(exc).__name__))
         raise RefreshFailed(str(exc))
+    auth_log("токен продовжено віджетом")
 
     now = time.time()
     oauth["accessToken"] = access
@@ -962,6 +1019,8 @@ class QuotaWidget(DesktopWindow):
                 refresh_credentials(force=True)
                 payload = fetch_usage()
             self.root.after(0, self._apply, payload, None)
+        except WaitForCli:
+            self.root.after(0, self._apply, None, ("st_wait_cli", {}))
         except ApiKeyGiven:
             self.root.after(0, self._apply, None, ("st_apikey", {}))
         except RefreshFailed:

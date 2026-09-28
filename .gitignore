@@ -9,3 +9,4 @@ calendar_settings.json
 token.txt
 model_usage.json
 *.pid
+auth.log
