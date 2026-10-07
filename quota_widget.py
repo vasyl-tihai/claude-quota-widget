@@ -158,8 +158,6 @@ def refresh_credentials(force=False):
         # refresh_token мертвий або відкликаний — самі вже не полагодимо
         auth_log("продовження НЕ вдалось: %s" % getattr(exc, "code", type(exc).__name__))
         raise RefreshFailed(str(exc))
-    auth_log("токен продовжено віджетом")
-
     now = time.time()
     oauth["accessToken"] = access
     if tok.get("refresh_token"):
@@ -170,16 +168,72 @@ def refresh_credentials(force=False):
         oauth["refreshTokenExpiresAt"] = int(
             (now + int(tok["refresh_token_expires_in"])) * 1000)
 
-    # атомарно: той самий файл читає і термінальний claude
-    tmp = CRED_PATH + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
+    # Сервер УЖЕ анулював старий refresh-токен: нові токени тепер існують лише
+    # в пам'яті цього процесу. Не записати їх = покласти вхід для всіх, хто
+    # читає файл (07.10.2026 так і сталось). Тому спершу копія віджета, потім
+    # заміна з повторами, а невдача лишає копію для відновлення.
+    with open(WIDGET_TMP, "w", encoding="utf-8") as f:
         json.dump(doc, f)
-    os.replace(tmp, CRED_PATH)
+    if not replace_with_retry(WIDGET_TMP, CRED_PATH):
+        auth_log("токен продовжено, але ЗАПИСАТИ НЕ ВДАЛОСЬ — нові токени в %s"
+                 % os.path.basename(WIDGET_TMP))
+        return oauth["accessToken"]
+    auth_log("токен продовжено віджетом")
     return oauth["accessToken"]
+
+
+# своє ім'я, а не «.tmp»: так копію віджета не сплутати з чужою
+WIDGET_TMP = CRED_PATH + ".quota-widget.tmp"
+
+
+def replace_with_retry(src, dst, attempts=20, pause=0.25):
+    """os.replace з повторами: на Windows заміна падає PermissionError, поки
+    файл тримає відкритим інший процес (claude саме читає токен). Утримує
+    мілісекунди, тож кілька секунд повторів вистачає з запасом."""
+    for _ in range(attempts):
+        try:
+            os.replace(src, dst)
+            return True
+        except PermissionError:
+            time.sleep(pause)
+    return False
+
+
+def recover_pending_write():
+    """Якщо минулого разу нові токени не записались — дописати їх зараз.
+
+    Копія віджета свіжіша за файл і містить refresh-токен, а у файлі його
+    немає або він інший (той, що сервер уже анулював) — значить, правильна
+    саме копія. Якщо файл свіжіший (claude сам продовжив або хтось увійшов
+    наново), копія застаріла — прибираємо її.
+    """
+    try:
+        if not os.path.exists(WIDGET_TMP):
+            return
+        with open(WIDGET_TMP, "r", encoding="utf-8") as f:
+            pending = json.load(f)["claudeAiOauth"]
+        current = read_credentials()["claudeAiOauth"]
+    except (OSError, ValueError, KeyError):
+        return
+    newer = os.path.getmtime(WIDGET_TMP) > os.path.getmtime(CRED_PATH)
+    # файл обнулений (claude упав на анульованому токені й стер вхід) — копія
+    # однаково краща, навіть якщо файл свіжіший: 07.10 стерли о 18:50, а
+    # копія була з 18:37, і саме вона повернула вхід без /login
+    wiped = not current.get("refreshToken")
+    if pending.get("refreshToken") and (wiped or newer) and \
+            pending.get("refreshToken") != current.get("refreshToken"):
+        if replace_with_retry(WIDGET_TMP, CRED_PATH):
+            auth_log("відновлено незаписані токени з копії віджета")
+    else:
+        try:
+            os.remove(WIDGET_TMP)
+        except OSError:
+            pass
 
 
 def ensure_token():
     """Живий OAuth-токен Claude Code: з файлу, а якщо протух — продовжений."""
+    recover_pending_write()
     doc = read_credentials()
     if token_alive(doc):
         return doc["claudeAiOauth"]["accessToken"]
