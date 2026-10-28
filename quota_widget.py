@@ -240,6 +240,27 @@ def ensure_token():
     return refresh_credentials()
 
 
+LOGIN_WARN_DAYS = 3
+
+
+def login_expires_soon():
+    """Дата кінця входу, якщо до неї менше LOGIN_WARN_DAYS днів, інакше None.
+
+    Продовження токена цей строк не посуває: раз на ~30 днів потрібен /login."""
+    if manual_token():
+        return None
+    try:
+        ms = read_credentials()["claudeAiOauth"].get("refreshTokenExpiresAt")
+    except (OSError, ValueError, KeyError):
+        return None
+    if not ms:
+        return None
+    end = datetime.fromtimestamp(ms / 1000)
+    if end - datetime.now() > timedelta(days=LOGIN_WARN_DAYS):
+        return None
+    return end
+
+
 class ApiKeyGiven(Exception):
     """Вставили API-ключ Console: у нього немає лімітів підписки, показувати нічого."""
 
@@ -1105,9 +1126,15 @@ class QuotaWidget(DesktopWindow):
         self._schedule_next()
 
     def _show_status(self):
+        end = login_expires_soon() if self.updated_at else None
         if self.error:
             key, args = self.error
             self.status.config(text=tr(key, **args), fg=T["amber"])
+        elif end:
+            self.status.config(
+                text=tr("st_login_soon", date="%02d.%02d %02d:%02d" % (
+                    end.day, end.month, end.hour, end.minute)),
+                fg=T["amber"])
         elif self.updated_at:
             self.status.config(
                 text="%02d:%02d" % (self.updated_at.hour, self.updated_at.minute),
